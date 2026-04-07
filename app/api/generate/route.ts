@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+export const runtime = "nodejs";
 
 const styleTriggers: Record<string, string> = {
   anime: "anime style, Studio Ghibli, cel-shaded",

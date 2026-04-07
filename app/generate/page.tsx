@@ -34,9 +34,8 @@ export default function GeneratePage() {
   const [activeTab, setActiveTab] = useState<'create' | 'gallery'>('create');
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) redirect('/login');
-      else setUser(user);
+    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+      if (!currentUser) redirect('/login');
     });
   }, []);
 
