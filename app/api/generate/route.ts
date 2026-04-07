@@ -24,6 +24,12 @@ async function generateFreeImage(prompt: string, style?: string): Promise<{url: 
   const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}${styleParam}&guidance=${style ? 7.5 : 5}`;
   
   const response = await fetch(url);
+  
+  if (response.status === 429) {
+    // Rate limited - try alternative approach
+    throw new Error('Service is busy. Please wait a moment and try again.');
+  }
+  
   if (!response.ok) {
     throw new Error(`Generation failed: ${response.status}`);
   }
