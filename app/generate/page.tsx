@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
@@ -23,12 +25,12 @@ const presets = [
 ];
 
 export default function GeneratePage() {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{ generation?: { image_urls?: string[] } } | null>(null);
   const [activeTab, setActiveTab] = useState<'create' | 'gallery'>('create');
 
   useEffect(() => {
@@ -38,12 +40,12 @@ export default function GeneratePage() {
     });
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     await supabase.auth.signOut();
     redirect('/login');
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (): Promise<void> => {
     if (!prompt.trim()) {
       setError('Please enter a prompt');
       return;
@@ -65,7 +67,7 @@ export default function GeneratePage() {
       const data = await response.json();
       if (!response.ok) setError(data.error || 'Generation failed');
       else setResult(data);
-    } catch (err) {
+    } catch {
       setError('Network error');
     } finally {
       setLoading(false);
