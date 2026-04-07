@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const { plan } = await request.json();
 
-    const prices = {
+    const prices: Record<string, string> = {
       starter: 'price_starter', // Replace with actual Stripe price IDs
       pro: 'price_pro',
       unlimited: 'price_unlimited',
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [{ price: prices[plan], quantity: 1 }],
+      line_items: [{ price: prices[plan as string], quantity: 1 }],
       mode: 'payment',
       success_url: `${request.nextUrl.origin}/gallery?success=true`,
       cancel_url: `${request.nextUrl.origin}/pricing?canceled=true`,

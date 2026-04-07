@@ -28,8 +28,10 @@ export async function POST(request: NextRequest) {
 
     const credits = plan === 'starter' ? 100 : plan === 'pro' ? 500 : 9999;
 
-    // Add credits
-    await supabase.from('profiles').update({ credits: supabase.sql`credits + ${credits}` }).eq('id', userId);
+    // Add credits using RPC or separate query
+    const { data: current } = await supabase.from('profiles').select('credits').eq('id', userId).single();
+    const newCredits = (current?.credits || 0) + credits;
+    await supabase.from('profiles').update({ credits: newCredits }).eq('id', userId);
 
     // Record transaction
     await supabase.from('credit_transactions').insert({
