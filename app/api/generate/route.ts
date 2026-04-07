@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { prompt, negativePrompt, style, model = "free" } = body;
 
     const authHeader = request.headers.get("authorization");
-    if (!authHeader || authHeader === 'Bearer null' || authHeader === 'Bearer undefined') {
+    if (!authHeader) {
       return NextResponse.json({ error: "Please log in first" }, { status: 401 });
     }
 
@@ -57,22 +57,24 @@ export async function POST(request: NextRequest) {
 
     // Try to save to DB (optional)
     try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      );
-      const token = authHeader.replace("Bearer ", "");
-      const { data: { user } } = await supabase.auth.getUser(token);
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       
-      if (user) {
-        await supabase.from("generations").insert({
-          user_id: user.id,
-          prompt: fullPrompt,
-          negative_prompt: negativePrompt,
-          style,
-          model,
-          image_urls: imageUrls,
-        });
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const token = authHeader.replace("Bearer ", "");
+        const { data: { user } } = await supabase.auth.getUser(token);
+        
+        if (user) {
+          await supabase.from("generations").insert({
+            user_id: user.id,
+            prompt: fullPrompt,
+            negative_prompt: negativePrompt,
+            style,
+            model,
+            image_urls: imageUrls,
+          });
+        }
       }
     } catch (dbError) {
       console.log('DB error (continuing anyway):', dbError);
