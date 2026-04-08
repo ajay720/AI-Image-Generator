@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 
@@ -27,15 +27,12 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userGenerations, setUserGenerations] = useState<Generation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<'users' | 'generations'>('users');
   const [newCredits, setNewCredits] = useState('');
+  const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from('profiles')
@@ -43,7 +40,14 @@ export default function AdminPage() {
       .order('created_at', { ascending: false });
     setUsers(data || []);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialLoadDone) {
+      setIsInitialLoadDone(true);
+      loadUsers();
+    }
+  }, [isInitialLoadDone, loadUsers]);
 
   const loadUserGenerations = async (userId: string) => {
     const { data } = await supabase

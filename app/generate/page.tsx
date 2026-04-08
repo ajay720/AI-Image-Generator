@@ -1,6 +1,6 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -42,6 +42,20 @@ export default function GeneratePage() {
   const handleLogout = async (): Promise<void> => {
     await supabase.auth.signOut();
     redirect('/login');
+  };
+
+  const handleDownload = async (url: string): Promise<void> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `generated-image-${Date.now()}.png`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch {
+      setError('Download failed');
+    }
   };
 
   const handleGenerate = async (): Promise<void> => {
@@ -200,7 +214,10 @@ export default function GeneratePage() {
                         height={512}
                         className="w-full h-auto"
                       />
-                      <button className="absolute bottom-2 right-2 px-3 py-1 bg-black/50 backdrop-blur rounded-lg text-sm hover:bg-black/70 transition">
+                      <button 
+                        onClick={() => handleDownload(url)}
+                        className="absolute bottom-2 right-2 px-3 py-1 bg-black/50 backdrop-blur rounded-lg text-sm hover:bg-black/70 transition"
+                      >
                         Download
                       </button>
                     </div>
