@@ -25,7 +25,6 @@ const presets = [
 ];
 
 export default function GeneratePage() {
-  const [, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [prompt, setPrompt] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [loading, setLoading] = useState(false);
